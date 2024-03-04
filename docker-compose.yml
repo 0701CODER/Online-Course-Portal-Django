@@ -1,0 +1,42 @@
+version: "3.9"
+   
+services:
+  pd_db:
+    restart: always
+    image: postgres:latest
+    mem_limit: 250M
+    env_file: ./.env
+    environment:
+     - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    networks:
+      - aware_net
+  web:
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    env_file: ./.env
+    environment:
+      DEBUG: 'true'
+    depends_on:
+      - pd_db
+    networks:
+      - aware_net
+volumes:
+  web-django:
+  web-static:
+  pgdata:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/mnunu/javascript-apps/django_online_course_exam/pgdata
+      o: bind
+networks:
+  aware_net:
+    name: aware_net_network
+    external: true
